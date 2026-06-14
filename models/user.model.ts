@@ -1,7 +1,10 @@
 import { Schema, model, Document } from "mongoose";
+import bcrypt from "bcrypt"
+import jwt from "jsonwebtoken";
+import crypto from "crypto"
 
-export interface IUser extends Document{
-    avatar?: string
+export interface IUser extends Document {
+    avatar?: string | null
     username: string
     firstName: string
     lastName: string
@@ -9,91 +12,164 @@ export interface IUser extends Document{
     email: string
     isEmailVerified: boolean
 
-    refreshToken?: string
-    refreshTokenExpiry?: Date
+    refreshToken?: string | null
+    refreshTokenExpiry?: Date | null
 
     emailVerificationToken?: string
     emailVerificationTokenExpiry?: Date
-    
+
     passwordResetToken?: string
     passwordResetTokenExpiry?: Date
 
-    lastLoginAt?: Date
-    lastLoginIP?: string
-    passwordChangedAt?: Date
-    passwordHistory?: string[]
+    lastLoginAt?: Date | null
+    lastLoginIP?: string | null
+    passwordChangedAt?: Date | null
+    passwordHistory?: string[] | null
+
+
+
+    isPasswordCorrect(password: string): Promise<boolean>
+
+    generateAccessToken(): string
+
+    generateRefreshToken(): string
+
+    generateTemporaryToken(): {
+        unhashedToken: string
+        hashedToken: string
+        tokenExpiry: number
+    }
 }
 
 
 const userSchema = new Schema<IUser>({
-    avatar: {type: String, default: null},
+    avatar: { type: String, default: null },
 
-    username:{
+    username: {
         type: String,
-        required: true,
+        required: [true, "Username is required"],
         unique: true,
         trim: true
     },
 
-    firstName:{
+    firstName: {
         type: String,
         required: true,
         trim: true,
+        match: [/^[a-zA-Z\s'-]+$/, "Name can only contain letters, spaces, apostrophes and hyphens"]
     },
 
-    lastName:{
+    lastName: {
         type: String,
         required: true,
         trim: true,
+        match: [/^[a-zA-Z\s'-]+$/, "Name can only contain letters, spaces, apostrophes and hyphens"]
     },
 
-    password:{
+    password: {
         type: String,
-        required: true,
+        required: [true, "Password is required"],
         select: false,
         trim: false,
     },
 
-    email:{
+    email: {
         type: String,
-        required: true,
+        required: [true, "Email is required"],
         unique: true,
-        lowerCase: true,
+        lowercase: true,
         trim: true,
+        match: [
+            /^\S+@\S+\.\S+$/,
+            "Please enter a valid email"
+        ]
     },
- 
+
     isEmailVerified: {
         type: Boolean,
         default: false,
         required: true
     },
 
-    refreshToken: String,
-    refreshTokenExpiry: Date,
+    refreshToken: { type: String, select: false, default: null },
+    refreshTokenExpiry: { type: Date, default: null },
 
-    emailVerificationToken:{ type: String, select: false},
-    emailVerificationTokenExpiry: Date,
+    emailVerificationToken: { type: String, select: false, default: null },
+    emailVerificationTokenExpiry: { type: Date, default: null },
 
-    passwordResetToken:{ type: String, select: false},
-    passwordResetTokenExpiry: Date,
+    passwordResetToken: { type: String, select: false, default: null },
+    passwordResetTokenExpiry: { type: Date, default: null },
 
-    lastLoginAt: Date,
-    lastLoginIP: String,
-    passwordChangedAt: Date,
+    lastLoginAt: { type: Date, default: null },
+    lastLoginIP: { type: String, select: false, default: null },
+    passwordChangedAt: { type: Date, default: null },
 
     passwordHistory: {
         type: [String],
         select: false,
-        default: []
+        default: [],
+        maxlength: 5,
     },
 
-}, {timestamps: true});
+}, { timestamps: true });
+
+// Password Hashing and comparison
+userSchema.pre("save", async function () {
+    if (!this.isModified("password")) return
+
+    this.password = await bcrypt.hash(this.password, 10);
+
+});
+
+userSchema.methods.isPasswordCorrect = async function (password: string):Promise<boolean>   {
+
+    return await bcrypt.compare(password, this.password)
+}
+
+// all about the tokens
+
+userSchema.methods.generateAccessToken = function (): string {
+    return jwt.sign(
+        {
+            _id: this._id,
+            email: this.email,
+            username: this.username
+        },
+        process.env.ACCESSTOKEN_SECRET as string,
+        {
+            expiresIn: "15m"
+        }
+    )
+}
+
+userSchema.methods.generateRefreshToken = function (): string {
+    return jwt.sign({
+        _id: this._id
+    },
+        process.env.REFRESH_TOKEN_SECRET as string,
+        { expiresIn: "7d" }
+    )
+}
+
+userSchema.methods.generateTemporaryToken = function (): unknown {
+    const unhashedToken = crypto.randomBytes(20).toString("hex")
+
+    const hashedToken = crypto
+        .createHash("sha256")
+        .update(unhashedToken)
+        .digest("hex")
+
+    const tokenExpiry = Date.now() + 20 * 60 * 1000
+
+    return { unhashedToken, hashedToken, tokenExpiry }
+}
+
 
 export const User = model<IUser>("User", userSchema)
 
-export interface UserResponse{
+export interface UserResponse {
     id: string
-    avatar?: string
+    avatar?: string | null
     username: string
     firstName: string
     lastName: string
