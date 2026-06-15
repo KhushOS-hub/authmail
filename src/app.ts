@@ -16,8 +16,10 @@ app.use(cors({
 }))
 
 import healthCheckrouter from "../routes/healthCheck.route.js"
+import userRegisterRoute from "../routes/auth.routes.js";
 
-app.get("/api/v1/healthcheck", healthCheckrouter)
+app.use("/api/v1/healthcheck", healthCheckrouter)
+app.use("/api/v1/auth", userRegisterRoute)
 
 app.get("/", (req: Request, res: Response) => {
     res.send("Welcome to AuthMail")

@@ -1,6 +1,6 @@
-import { Schema, model, Document } from "mongoose";
+import { Schema, model, Document } from "mongoose"
 import bcrypt from "bcrypt"
-import jwt from "jsonwebtoken";
+import jwt from "jsonwebtoken"
 import crypto from "crypto"
 
 export interface IUser extends Document {
@@ -37,7 +37,7 @@ export interface IUser extends Document {
     generateTemporaryToken(): {
         unhashedToken: string
         hashedToken: string
-        tokenExpiry: number
+        tokenExpiry: Date
     }
 }
 
@@ -56,14 +56,12 @@ const userSchema = new Schema<IUser>({
         type: String,
         required: true,
         trim: true,
-        match: [/^[a-zA-Z\s'-]+$/, "Name can only contain letters, spaces, apostrophes and hyphens"]
     },
 
     lastName: {
         type: String,
         required: true,
         trim: true,
-        match: [/^[a-zA-Z\s'-]+$/, "Name can only contain letters, spaces, apostrophes and hyphens"]
     },
 
     password: {
@@ -79,10 +77,6 @@ const userSchema = new Schema<IUser>({
         unique: true,
         lowercase: true,
         trim: true,
-        match: [
-            /^\S+@\S+\.\S+$/,
-            "Please enter a valid email"
-        ]
     },
 
     isEmailVerified: {
@@ -121,7 +115,7 @@ userSchema.pre("save", async function () {
 
 });
 
-userSchema.methods.isPasswordCorrect = async function (password: string):Promise<boolean>   {
+userSchema.methods.isPasswordCorrect = async function (password: string): Promise<boolean> {
 
     return await bcrypt.compare(password, this.password)
 }
@@ -151,7 +145,7 @@ userSchema.methods.generateRefreshToken = function (): string {
     )
 }
 
-userSchema.methods.generateTemporaryToken = function (): unknown {
+userSchema.methods.generateTemporaryToken = function () {
     const unhashedToken = crypto.randomBytes(20).toString("hex")
 
     const hashedToken = crypto
