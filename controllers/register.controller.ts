@@ -5,13 +5,13 @@ import { ApiError } from "../utils/api.error.js"
 import { asyncHandler } from "../utils/asyncHandler.js"
 import type { Request, Response } from "express"
 import { sendEmail, emailVerificationMailgen } from "../utils/mail.js"
-import { registerSchemaZod } from "../models/register.validation.js"
+import { registerSchemaZod } from "../validators/register.validation.js"
 
 
 const registerUser = asyncHandler(async (req: Request, res: Response) => {
-    //const { email, username, password, firstName, lastName } = req.body
+
     const validatedData = registerSchemaZod.parse(req.body);
-        const {
+    const {
         email,
         username,
         password,
@@ -23,8 +23,8 @@ const registerUser = asyncHandler(async (req: Request, res: Response) => {
     const existedUser = await User.findOne({ $or: [{ username }, { email }] })
     if (existedUser) throw new ApiError(409, "User already exist");
 
-    // else create a new 
-        const user = await User.create({
+    // else create a new user
+    const user = await User.create({
         email,
         username,
         password,

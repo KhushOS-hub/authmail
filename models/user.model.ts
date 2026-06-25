@@ -67,7 +67,6 @@ const userSchema = new Schema<IUser>({
     password: {
         type: String,
         required: [true, "Password is required"],
-        select: false,
         trim: false,
     },
 
@@ -116,7 +115,8 @@ userSchema.pre("save", async function () {
 });
 
 userSchema.methods.isPasswordCorrect = async function (password: string): Promise<boolean> {
-
+    console.log("Entered:", password)
+    console.log("Stored:", this.password)
     return await bcrypt.compare(password, this.password)
 }
 
@@ -129,7 +129,7 @@ userSchema.methods.generateAccessToken = function (): string {
             email: this.email,
             username: this.username
         },
-        process.env.ACCESSTOKEN_SECRET as string,
+        process.env.ACCESS_TOKEN_SECRET as string,
         {
             expiresIn: "15m"
         }
@@ -168,4 +168,13 @@ export interface UserResponse {
     firstName: string
     lastName: string
     email: string
+}
+
+export interface LoginResponse{
+    id: string
+    email: string
+    username: string
+    isEmailVerified: boolean
+    lastLoginAt?: Date 
+    lastLoginIP?: string | null
 }
