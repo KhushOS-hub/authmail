@@ -9,7 +9,7 @@ export const forgotPasswordSchemaZod = z.object({
 })
 
 export const resetPasswordSchemaZod = z.object({
-    password: z.string()
+    newPassword: z.string()
         .min(8, "Password must be at least 8 characters")
         .max(100, "Password too long")
         .regex(/[A-Z]/, "Must contain at least one uppercase letter")

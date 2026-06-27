@@ -95,14 +95,8 @@ const userSchema = new Schema<IUser>({
 
     lastLoginAt: { type: Date, default: null },
     lastLoginIP: { type: String, select: false, default: null },
-    passwordChangedAt: { type: Date, default: null },
+    passwordChangedAt: { type: Date, default: null }
 
-    passwordHistory: {
-        type: [String],
-        select: false,
-        default: [],
-        maxlength: 5,
-    },
 
 }, { timestamps: true });
 
