@@ -18,8 +18,8 @@ export interface IUser extends Document {
     emailVerificationToken?: string
     emailVerificationTokenExpiry?: Date
 
-    passwordResetToken?: string
-    passwordResetTokenExpiry?: Date
+    passwordResetToken?: string | undefined
+    passwordResetTokenExpiry?: Date | undefined
 
     lastLoginAt?: Date | null
     lastLoginIP?: string | null
