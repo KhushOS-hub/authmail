@@ -15,8 +15,8 @@ export interface IUser extends Document {
     refreshToken?: string | null
     refreshTokenExpiry?: Date | null
 
-    emailVerificationToken?: string
-    emailVerificationTokenExpiry?: Date
+    emailVerificationToken?: string | undefined
+    emailVerificationTokenExpiry?: Date | undefined
 
     passwordResetToken?: string | undefined
     passwordResetTokenExpiry?: Date | undefined
@@ -164,11 +164,11 @@ export interface UserResponse {
     email: string
 }
 
-export interface LoginResponse{
+export interface LoginResponse {
     id: string
     email: string
     username: string
     isEmailVerified: boolean
-    lastLoginAt?: Date 
+    lastLoginAt?: Date
     lastLoginIP?: string | null
 }

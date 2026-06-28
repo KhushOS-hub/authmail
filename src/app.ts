@@ -20,11 +20,16 @@ import userRegisterRoute from "../routes/auth.routes.js";
 import userLoginRoute from "../routes/auth.routes.js"
 import forgotPasswordRoute from "../routes/auth.routes.js"
 import resetPasswordRoute from "../routes/auth.routes.js"
+import sendEmailVerification from "../routes/auth.routes.js"
+import emailVerifiyRoute from "../routes/auth.routes.js"
 app.use("/api/v1/healthcheck", healthCheckrouter)
 app.use("/api/v1/auth", userRegisterRoute)
 app.use("/api/v1/auth", userLoginRoute)
 app.use("/api/v1/auth", forgotPasswordRoute)
 app.use("/api/v1/auth", resetPasswordRoute)
+app.use("/api/v1/auth", sendEmailVerification)
+app.use("/api/v1/auth", emailVerifiyRoute)
+
 
 app.get("/", (req: Request, res: Response) => {
     res.send("Welcome to AuthMail")

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { registerUser } from "../controllers/register.controller.js";
+import { registerUser, sendEmailVerify, verifyEmail } from "../controllers/register.controller.js";
 import { loginUser } from "../controllers/login.controller.js";
 import { validate } from "../middlewares/login.middleware.js";
 import { loginSchemaZod } from "../validators/login.validaton.js";
@@ -12,5 +12,7 @@ router.route("/register").post(registerUser)
 router.route("/login").post(validate(loginSchemaZod), loginUser)
 router.route("/forgot-password").post(validate(forgotPasswordSchemaZod), forgotPassword)
 router.route("/reset-password/:token").post(validate(resetPasswordSchemaZod), resetPassword)
+router.post("/send-verification-email", validate(forgotPasswordSchemaZod), sendEmailVerify);
+router.get("/verify-email/:token", verifyEmail);
 
 export default router
