@@ -56,7 +56,7 @@ const forgotPassword = asyncHandler(async (req: Request, res: Response) => {
         email: user.email
     }
 
-    res
+    return res
         .status(200)
         .json(
             new ApiResponse(

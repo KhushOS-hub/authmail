@@ -25,8 +25,6 @@ const generateTokens = async (userId: Types.ObjectId | string): Promise<TokenRes
             throw new ApiError(500, "Failed to generate tokens");
         }
 
-        console.log("Token generation successful for user:", userId);
-
         return { accessToken, refreshToken };
 
     } catch (error) {

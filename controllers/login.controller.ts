@@ -5,6 +5,7 @@ import { generateTokens } from "./token.controller.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import type { Request, Response } from "express";
 import crypto from "crypto";
+import { Types } from 'mongoose';
 
 interface loginCredentials extends Partial<IUser> {
     email: string;
@@ -55,6 +56,7 @@ const loginUser = asyncHandler(async (req: Request, res: Response) => {
 
     user.lastLoginAt = new Date()
     user.lastLoginIP = clientIP
+    user.isloggedIn = true
     await user.save({ validateBeforeSave: false })
 
     const LoggedInUser: LoginResponse = {
@@ -75,7 +77,7 @@ const loginUser = asyncHandler(async (req: Request, res: Response) => {
     };
 
     return res.status(200)
-        .cookie("refreshToken", refreshToken, options)
+        .cookie("refreshToken", refreshToken)
         .cookie("accessToken", accessToken, options)
         .json(
             new ApiResponse(
@@ -91,4 +93,54 @@ const loginUser = asyncHandler(async (req: Request, res: Response) => {
         )
 })
 
-export { loginUser }
+
+const logout = asyncHandler(async (req: Request, res: Response) => {
+    try {
+        const refreshToken = req.headers?.['x-refresh-token'] || 
+                            req.cookies?.refreshToken;
+
+        if (!refreshToken) {
+            return res.status(400).json(
+                new ApiResponse(400, null, "Refresh token required", false)
+            );
+        }
+
+        const hashedRefreshToken = crypto
+            .createHash("sha256")
+            .update(refreshToken)
+            .digest("hex");
+
+        
+        const user = await User.findOne({ 
+            refreshToken: hashedRefreshToken,
+            isloggedIn: true 
+        });
+
+        if (!user) {
+            return res.status(401).json(
+                new ApiResponse(401, null, "Invalid session", false)
+            );
+        }
+
+        
+        user.refreshToken = null;
+        user.refreshTokenExpiry = null;
+        user.isloggedIn = false;
+        await user.save({ validateBeforeSave: false });
+
+        res.clearCookie('refreshToken');
+        res.clearCookie('accessToken');
+
+        return res.status(200).json(
+            new ApiResponse(200, { status: "success" }, "Logged out successfully", true)
+        );
+
+    } catch (error: any) {
+        console.error('Logout error:', error);
+        return res.status(500).json(
+            new ApiResponse(500, null, "Logout failed", false)
+        );
+    }
+});
+
+export { loginUser,logout}

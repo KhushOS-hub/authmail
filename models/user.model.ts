@@ -26,7 +26,7 @@ export interface IUser extends Document {
     passwordChangedAt?: Date | null
     passwordHistory?: string[] | null
 
-
+    isloggedIn: boolean
 
     isPasswordCorrect(password: string): Promise<boolean>
 
@@ -84,6 +84,8 @@ const userSchema = new Schema<IUser>({
         required: true
     },
 
+    isloggedIn: {type: Boolean, default: false},
+
     refreshToken: { type: String, select: false, default: null },
     refreshTokenExpiry: { type: Date, default: null },
 
@@ -109,8 +111,6 @@ userSchema.pre("save", async function () {
 });
 
 userSchema.methods.isPasswordCorrect = async function (password: string): Promise<boolean> {
-    console.log("Entered:", password)
-    console.log("Stored:", this.password)
     return await bcrypt.compare(password, this.password)
 }
 

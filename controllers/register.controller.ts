@@ -96,7 +96,7 @@ const sendEmailVerify = asyncHandler(async (req: Request, res: Response) => {
         )
     })
 
-    res
+    return res
         .status(200)
         .json(new ApiResponse(200,
             { status: "success", data: null },
@@ -135,7 +135,7 @@ const verifyEmail = asyncHandler(async (req: Request, res: Response) => {
 
     await user.save({ validateBeforeSave: false });
 
-    res.status(200).json(
+    return res.status(200).json(
         new ApiResponse(
             200,
             { status: "success" },
