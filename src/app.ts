@@ -9,7 +9,7 @@ app.use(express.urlencoded({ extended: true, limit: "16kb" }))
 
 //Cors Configuration
 app.use(cors({
-    origin: ["https://localhost:5173"],
+    origin: process.env.CORS_ORIGIN?.split(",") ?? [],
     credentials: true,
     methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Authorization"]
