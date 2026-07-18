@@ -2,7 +2,7 @@ import { configDotenv } from "dotenv"
 configDotenv({ path: "./.env" })
 
 import app from "./app.js"
-import { connectDB } from "../db/connect.js"
+import { connectDB } from "./auth/db/connect.js"
 
 const port = parseInt(process.env.PORT ?? "8000", 10);
 

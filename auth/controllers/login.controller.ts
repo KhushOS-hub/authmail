@@ -5,7 +5,6 @@ import { generateTokens } from "./token.controller.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import type { Request, Response } from "express";
 import crypto from "crypto";
-import { Types } from 'mongoose';
 
 interface loginCredentials extends Partial<IUser> {
     email: string;
@@ -96,8 +95,7 @@ const loginUser = asyncHandler(async (req: Request, res: Response) => {
 
 const logout = asyncHandler(async (req: Request, res: Response) => {
     try {
-        const refreshToken = req.headers?.['x-refresh-token'] || 
-                            req.cookies?.refreshToken;
+        const refreshToken = req.cookies?.refreshToken;
 
         if (!refreshToken) {
             return res.status(400).json(
