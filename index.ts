@@ -2,7 +2,7 @@ import { configDotenv } from "dotenv"
 configDotenv({ path: "./.env" })
 
 import app from "./app.js"
-import { connectDB } from "./auth/db/connect.js"
+import { connectAuthDB } from "./auth/db/connect.js"
 
 const port = parseInt(process.env.PORT ?? "8000", 10);
 
@@ -10,7 +10,7 @@ const port = parseInt(process.env.PORT ?? "8000", 10);
   try {
     console.log("Connecting to MongoDB...")
 
-    await connectDB()
+    await connectAuthDB()
 
     console.log("MongoDB connected")
 

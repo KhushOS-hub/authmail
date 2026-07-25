@@ -2,6 +2,7 @@ import { Schema, model, Document } from "mongoose"
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
 import crypto from "crypto"
+import { authDB } from "../db/connect.js"
 
 export interface IUser extends Document {
     avatar?: string | null
@@ -153,7 +154,7 @@ userSchema.methods.generateTemporaryToken = function () {
 }
 
 
-export const User = model<IUser>("User", userSchema)
+export const User = authDB.model<IUser>("User", userSchema)
 
 export interface UserResponse {
     id: string

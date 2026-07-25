@@ -1,14 +1,17 @@
 import mongoose from 'mongoose'
 import { ApiError } from '../utils/api.error.js'
 
-const connectDB = async () => {
+const authDB = mongoose.createConnection()
+
+const connectAuthDB = async () => {
 
     try {
-        const mongoUrl: string | undefined = process.env.MONGO_URL
-        if (!mongoUrl) {
-            throw new ApiError(500, "MongoDB Url key has some problems")
+        const authUrl = process.env.AUTH_URL
+        
+        if (!authUrl) {
+            throw new ApiError(500, "AuthDB Url key has some problems")
         } else {
-            await mongoose.connect(mongoUrl)
+            await authDB.openUri(authUrl)
             console.log("MongoDB connection established ✅");
 
         }
@@ -20,4 +23,4 @@ const connectDB = async () => {
     }
 }
 
-export { connectDB }
+export { connectAuthDB, authDB }
